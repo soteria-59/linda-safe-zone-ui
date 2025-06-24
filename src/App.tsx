@@ -4,13 +4,16 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Onboarding from "./pages/Onboarding";
-import MapPage from "./pages/MapPage";
+import Header from "./components/Header";
+import Home from "./pages/Home";
+import LiveMap from "./pages/LiveMap";
 import ReportChaos from "./pages/ReportChaos";
 import InfoHub from "./pages/InfoHub";
-import Settings from "./pages/Settings";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
+import NotFound from "./pages/NotFound";
+import PanicButton from "./components/PanicButton";
 
 const queryClient = new QueryClient();
 
@@ -20,16 +23,22 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/map" element={<MapPage />} />
-          <Route path="/report" element={<ReportChaos />} />
-          <Route path="/info" element={<InfoHub />} />
-          <Route path="/settings" element={<Settings />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="min-h-screen bg-gray-50">
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/map" element={<LiveMap />} />
+              <Route path="/report" element={<ReportChaos />} />
+              <Route path="/info" element={<InfoHub />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <PanicButton />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
