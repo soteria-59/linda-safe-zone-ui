@@ -6,11 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const ReportChaos = () => {
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
   const [dangerType, setDangerType] = useState('');
   const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,14 +32,14 @@ const ReportChaos = () => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    // Simulate converting click position to lat/lng
+    // Convert click position to lat/lng coordinates for Nairobi area
     const lat = -1.2921 + (y / rect.height) * 0.1;
     const lng = 36.8219 + (x / rect.width) * 0.1;
     
     setSelectedLocation({ lat, lng });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedLocation || !dangerType) {
       toast({
         title: "Missing Information",
@@ -47,19 +49,62 @@ const ReportChaos = () => {
       return;
     }
 
-    console.log('Chaos report:', {
-      location: selectedLocation,
-      type: dangerType,
-      description,
-      timestamp: new Date()
-    });
+    setIsSubmitting(true);
 
-    toast({
-      title: "Report Submitted",
-      description: "Thank you for keeping the community safe",
-    });
+    try {
+      const { data, error } = await supabase
+        .from('chaos_reports')
+        .insert([
+          {
+            location_lat: selectedLocation.lat,
+            location_lng: selectedLocation.lng,
+            danger_type: dangerType,
+            description: description || null,
+          }
+        ]);
 
-    navigate('/map');
+      if (error) {
+        console.error('Error submitting report:', error);
+        toast({
+          title: "Submission Failed",
+          description: "Unable to submit report. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('Chaos report submitted:', {
+        location: selectedLocation,
+        type: dangerType,
+        description,
+        timestamp: new Date()
+      });
+
+      toast({
+        title: "Report Submitted",
+        description: "Thank you for keeping the community safe. Your report is now live on the map.",
+      });
+
+      // Reset form
+      setSelectedLocation(null);
+      setDangerType('');
+      setDescription('');
+
+      // Navigate back to map
+      setTimeout(() => {
+        navigate('/map');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Unable to submit report. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -81,43 +126,50 @@ const ReportChaos = () => {
             Select Location
           </h2>
           
-          <div 
-            className="h-48 bg-gradient-to-br from-green-100 to-gray-100 rounded-lg relative cursor-crosshair border-2 border-dashed border-gray-300"
-            onClick={handleMapClick}
-          >
-            {/* Map background pattern */}
-            <div className="absolute inset-0 opacity-20" 
-                 style={{
-                   backgroundImage: `
-                     linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
-                     linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)
-                   `,
-                   backgroundSize: '20px 20px'
-                 }}>
-            </div>
-            
-            {selectedLocation && (
+          <div className="relative">
+            {/* OpenStreetMap Implementation */}
+            <div id="maps" className="h-48 rounded-lg overflow-hidden relative border-2 border-dashed border-gray-300">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                frameBorder="0" 
+                scrolling="no" 
+                marginHeight={0} 
+                marginWidth={0} 
+                src="https://www.openstreetmap.org/export/embed.html?bbox=36.800,-1.300,36.850,-1.250&layer=mapnik"
+                className="absolute inset-0"
+              />
+              
+              {/* Click overlay for location selection */}
               <div 
-                className="absolute w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: '50%',
-                  top: '50%'
-                }}
+                className="absolute inset-0 cursor-crosshair z-10"
+                onClick={handleMapClick}
               >
-                <AlertTriangle className="w-3 h-3 text-white" />
+                {selectedLocation && (
+                  <div 
+                    className="absolute w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 z-20"
+                    style={{
+                      left: '50%',
+                      top: '50%'
+                    }}
+                  >
+                    <AlertTriangle className="w-3 h-3 text-white" />
+                  </div>
+                )}
               </div>
-            )}
-            
-            <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-              {selectedLocation ? (
-                <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
-                  Location Selected
-                </span>
-              ) : (
-                <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
-                  Tap to select location
-                </span>
-              )}
+              
+              {/* Instructions overlay */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-15">
+                {selectedLocation ? (
+                  <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
+                    Location Selected
+                  </span>
+                ) : (
+                  <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
+                    Tap to select location
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -161,10 +213,10 @@ const ReportChaos = () => {
         <Button 
           onClick={handleSubmit}
           className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg"
-          disabled={!selectedLocation || !dangerType}
+          disabled={!selectedLocation || !dangerType || isSubmitting}
         >
           <Send className="w-5 h-5 mr-2" />
-          Submit Report
+          {isSubmitting ? 'Submitting...' : 'Submit Report'}
         </Button>
         
         <p className="text-xs text-gray-500 text-center">

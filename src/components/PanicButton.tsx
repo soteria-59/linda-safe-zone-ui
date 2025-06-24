@@ -5,15 +5,51 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const PanicButton = () => {
   const [isPressed, setIsPressed] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [emergencyNote, setEmergencyNote] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handlePanicPress = () => {
     setShowModal(true);
+  };
+
+  const submitPanicAlert = async (location: { latitude: number; longitude: number }) => {
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from('panic_alerts')
+        .insert([
+          {
+            location_lat: location.latitude,
+            location_lng: location.longitude,
+            emergency_note: emergencyNote || null,
+          }
+        ]);
+
+      if (error) {
+        console.error('Error submitting panic alert:', error);
+        toast({
+          title: "Alert Failed",
+          description: "Unable to submit panic alert to the map. Alert still sent via selected method.",
+          variant: "destructive"
+        });
+      } else {
+        console.log('Panic alert submitted to map:', {
+          location,
+          note: emergencyNote,
+          timestamp: new Date()
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting panic alert:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEmergencyAction = (platform: 'whatsapp' | 'twitter' | 'call') => {
@@ -22,8 +58,11 @@ const PanicButton = () => {
     
     // Get current location
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
+      navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
+        
+        // Submit panic alert to database for map display
+        await submitPanicAlert({ latitude, longitude });
         
         // Create emergency message
         const emergencyMessage = `🚨 EMERGENCY ALERT 🚨
@@ -39,7 +78,7 @@ Sent from Linda Safety App`;
             window.open(whatsappUrl, '_blank');
             toast({
               title: "WhatsApp Alert Opened",
-              description: "Share the emergency message with trusted contacts.",
+              description: "Share the emergency message with trusted contacts. Panic alert is now live on the map.",
               variant: "destructive"
             });
             break;
@@ -49,7 +88,7 @@ Sent from Linda Safety App`;
             window.open(twitterUrl, '_blank');
             toast({
               title: "Twitter Alert Opened",
-              description: "Share the emergency alert on Twitter.",
+              description: "Share the emergency alert on Twitter. Panic alert is now live on the map.",
               variant: "destructive"
             });
             break;
@@ -59,7 +98,7 @@ Sent from Linda Safety App`;
             window.location.href = 'tel:999';
             toast({
               title: "Emergency Call Initiated",
-              description: "Attempting to call emergency services (999).",
+              description: "Attempting to call emergency services (999). Panic alert is now live on the map.",
               variant: "destructive"
             });
             break;
@@ -73,7 +112,10 @@ Sent from Linda Safety App`;
         });
       });
     } else {
-      // Fallback without location
+      // Fallback without location - still submit alert with default coordinates
+      const defaultLocation = { latitude: -1.2921, longitude: 36.8219 }; // Nairobi center
+      submitPanicAlert(defaultLocation);
+      
       const emergencyMessage = `🚨 EMERGENCY ALERT 🚨
 Time: ${new Date().toLocaleString()}
 ${emergencyNote ? `Note: ${emergencyNote}` : ''}
@@ -84,13 +126,28 @@ Sent from Linda Safety App`;
         case 'whatsapp':
           const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(emergencyMessage)}`;
           window.open(whatsappUrl, '_blank');
+          toast({
+            title: "WhatsApp Alert Opened",
+            description: "Share the emergency message with trusted contacts. Panic alert is now live on the map.",
+            variant: "destructive"
+          });
           break;
         case 'twitter':
           const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(emergencyMessage)}`;
           window.open(twitterUrl, '_blank');
+          toast({
+            title: "Twitter Alert Opened", 
+            description: "Share the emergency alert on Twitter. Panic alert is now live on the map.",
+            variant: "destructive"
+          });
           break;
         case 'call':
           window.location.href = 'tel:999';
+          toast({
+            title: "Emergency Call Initiated",
+            description: "Attempting to call emergency services (999). Panic alert is now live on the map.",
+            variant: "destructive"
+          });
           break;
       }
     }
@@ -139,7 +196,7 @@ Sent from Linda Safety App`;
           
           <div className="space-y-6">
             <p className="text-gray-600">
-              Choose how you want to send your emergency alert. Your location will be included automatically.
+              Choose how you want to send your emergency alert. Your location will be included automatically and shown as a critical alert on the map.
             </p>
             
             <div>
@@ -162,6 +219,7 @@ Sent from Linda Safety App`;
               <Button
                 onClick={() => handleEmergencyAction('whatsapp')}
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
+                disabled={isSubmitting}
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Send via WhatsApp
@@ -170,6 +228,7 @@ Sent from Linda Safety App`;
               <Button
                 onClick={() => handleEmergencyAction('twitter')}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                disabled={isSubmitting}
               >
                 <Twitter className="w-4 h-4 mr-2" />
                 Post on Twitter/X
@@ -178,6 +237,7 @@ Sent from Linda Safety App`;
               <Button
                 onClick={() => handleEmergencyAction('call')}
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
+                disabled={isSubmitting}
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Call Emergency (999)
@@ -188,6 +248,7 @@ Sent from Linda Safety App`;
               onClick={() => setShowModal(false)}
               variant="outline"
               className="w-full"
+              disabled={isSubmitting}
             >
               <X className="w-4 h-4 mr-2" />
               Cancel

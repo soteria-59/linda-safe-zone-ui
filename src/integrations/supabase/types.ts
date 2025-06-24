@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chaos_reports: {
+        Row: {
+          created_at: string
+          danger_type: string
+          description: string | null
+          id: string
+          is_verified: boolean | null
+          location_lat: number
+          location_lng: number
+        }
+        Insert: {
+          created_at?: string
+          danger_type: string
+          description?: string | null
+          id?: string
+          is_verified?: boolean | null
+          location_lat: number
+          location_lng: number
+        }
+        Update: {
+          created_at?: string
+          danger_type?: string
+          description?: string | null
+          id?: string
+          is_verified?: boolean | null
+          location_lat?: number
+          location_lng?: number
+        }
+        Relationships: []
+      }
       "linda ke": {
         Row: {
           created_at: string
@@ -21,6 +51,33 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      panic_alerts: {
+        Row: {
+          created_at: string
+          emergency_note: string | null
+          id: string
+          is_active: boolean | null
+          location_lat: number
+          location_lng: number
+        }
+        Insert: {
+          created_at?: string
+          emergency_note?: string | null
+          id?: string
+          is_active?: boolean | null
+          location_lat: number
+          location_lng: number
+        }
+        Update: {
+          created_at?: string
+          emergency_note?: string | null
+          id?: string
+          is_active?: boolean | null
+          location_lat?: number
+          location_lng?: number
         }
         Relationships: []
       }
