@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { AlertTriangle, Phone, X, Send } from 'lucide-react';
+import { AlertTriangle, Phone, X, Send, MessageCircle, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -16,7 +16,7 @@ const PanicButton = () => {
     setShowModal(true);
   };
 
-  const handleConfirmEmergency = () => {
+  const handleEmergencyAction = (platform: 'whatsapp' | 'twitter' | 'call') => {
     setIsPressed(true);
     setShowModal(false);
     
@@ -33,22 +33,66 @@ ${emergencyNote ? `Note: ${emergencyNote}` : ''}
 
 Sent from Linda Safety App`;
 
-        // Open WhatsApp with emergency message
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(emergencyMessage)}`;
-        window.open(whatsappUrl, '_blank');
+        switch (platform) {
+          case 'whatsapp':
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(emergencyMessage)}`;
+            window.open(whatsappUrl, '_blank');
+            toast({
+              title: "WhatsApp Alert Opened",
+              description: "Share the emergency message with trusted contacts.",
+              variant: "destructive"
+            });
+            break;
+            
+          case 'twitter':
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(emergencyMessage)}`;
+            window.open(twitterUrl, '_blank');
+            toast({
+              title: "Twitter Alert Opened",
+              description: "Share the emergency alert on Twitter.",
+              variant: "destructive"
+            });
+            break;
+            
+          case 'call':
+            // Try to initiate emergency call
+            window.location.href = 'tel:999';
+            toast({
+              title: "Emergency Call Initiated",
+              description: "Attempting to call emergency services (999).",
+              variant: "destructive"
+            });
+            break;
+        }
         
         console.log('Emergency alert triggered:', {
+          platform,
           location: { latitude, longitude },
           note: emergencyNote,
           timestamp: new Date()
         });
-        
-        toast({
-          title: "Emergency Alert Sent",
-          description: "WhatsApp opened with emergency message. Share with trusted contacts.",
-          variant: "destructive"
-        });
       });
+    } else {
+      // Fallback without location
+      const emergencyMessage = `🚨 EMERGENCY ALERT 🚨
+Time: ${new Date().toLocaleString()}
+${emergencyNote ? `Note: ${emergencyNote}` : ''}
+
+Sent from Linda Safety App`;
+
+      switch (platform) {
+        case 'whatsapp':
+          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(emergencyMessage)}`;
+          window.open(whatsappUrl, '_blank');
+          break;
+        case 'twitter':
+          const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(emergencyMessage)}`;
+          window.open(twitterUrl, '_blank');
+          break;
+        case 'call':
+          window.location.href = 'tel:999';
+          break;
+      }
     }
     
     // Reset after 3 seconds
@@ -93,9 +137,9 @@ Sent from Linda Safety App`;
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <p className="text-gray-600">
-              This will capture your location and open WhatsApp with an emergency message to share with trusted contacts.
+              Choose how you want to send your emergency alert. Your location will be included automatically.
             </p>
             
             <div>
@@ -110,24 +154,44 @@ Sent from Linda Safety App`;
               />
             </div>
             
-            <div className="flex space-x-3">
+            <div className="space-y-3">
+              <div className="text-sm font-medium text-gray-700 mb-2">
+                Choose Alert Method:
+              </div>
+              
               <Button
-                onClick={() => setShowModal(false)}
-                variant="outline"
-                className="flex-1"
+                onClick={() => handleEmergencyAction('whatsapp')}
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
               >
-                <X className="w-4 h-4 mr-2" />
-                Cancel
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Send via WhatsApp
               </Button>
               
               <Button
-                onClick={handleConfirmEmergency}
-                className="flex-1 bg-red-600 hover:bg-red-700"
+                onClick={() => handleEmergencyAction('twitter')}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
               >
-                <Send className="w-4 h-4 mr-2" />
-                Send Alert
+                <Twitter className="w-4 h-4 mr-2" />
+                Post on Twitter/X
+              </Button>
+              
+              <Button
+                onClick={() => handleEmergencyAction('call')}
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                Call Emergency (999)
               </Button>
             </div>
+            
+            <Button
+              onClick={() => setShowModal(false)}
+              variant="outline"
+              className="w-full"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -37,6 +37,10 @@ const Home = () => {
     'Law Society of Kenya'
   ];
 
+  const handleWatchDemo = () => {
+    window.open('https://www.youtube.com/watch?v=qz0f1yyf_eA&pp=ygUJanVuZSAyNXRo', '_blank');
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -87,16 +91,17 @@ const Home = () => {
 
             {/* Demo Video Placeholder */}
             <div className="max-w-4xl mx-auto">
-              <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="aspect-video flex items-center justify-center">
+              <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl cursor-pointer" onClick={handleWatchDemo}>
+                <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-green-800/20 to-red-800/20">
                   <Button 
                     size="lg" 
-                    className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
+                    className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-300 hover:scale-105"
                   >
                     <Play className="w-8 h-8 mr-2" />
                     Watch Demo
                   </Button>
                 </div>
+                <div className="absolute inset-0 bg-black/10 hover:bg-black/5 transition-colors"></div>
               </div>
             </div>
           </div>

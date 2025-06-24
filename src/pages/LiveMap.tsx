@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
-import { Layers, AlertTriangle, Shield, Navigation, MapPin, Search } from 'lucide-react';
+import { Layers, AlertTriangle, Shield, Navigation, MapPin, Search, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate } from 'react-router-dom';
 
 const LiveMap = () => {
-  const [showSafeZones, setShowSafeZones] = useState(true);
-  const [showChaosZones, setShowChaosZones] = useState(true);
+  const [showSafeZones, setShowSafeZones] = useState(false);
+  const [showChaosZones, setShowChaosZones] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -35,7 +36,7 @@ const LiveMap = () => {
               variant={showSafeZones ? "default" : "outline"}
               size="sm"
               onClick={() => setShowSafeZones(!showSafeZones)}
-              className={`${showSafeZones ? 'bg-green-600 hover:bg-green-700' : ''}`}
+              className={`${showSafeZones ? 'bg-green-600 hover:bg-green-700' : 'border-green-600 text-green-600 hover:bg-green-50'}`}
             >
               <Shield className="w-4 h-4 mr-1" />
               Safe Zones
@@ -45,6 +46,7 @@ const LiveMap = () => {
               variant={showChaosZones ? "destructive" : "outline"}
               size="sm"
               onClick={() => setShowChaosZones(!showChaosZones)}
+              className={`${!showChaosZones ? 'border-red-600 text-red-600 hover:bg-red-50' : ''}`}
             >
               <AlertTriangle className="w-4 h-4 mr-1" />
               Chaos Zones
@@ -76,7 +78,7 @@ const LiveMap = () => {
             </div>
           </div>
           
-          {/* Safe zones */}
+          {/* Safe zones - only show when enabled */}
           {showSafeZones && (
             <>
               <div className="absolute top-1/4 left-1/3 transform -translate-x-1/2 -translate-y-1/2">
@@ -111,7 +113,7 @@ const LiveMap = () => {
             </>
           )}
           
-          {/* Chaos zones */}
+          {/* Chaos zones - only show when enabled */}
           {showChaosZones && (
             <>
               <div className="absolute top-1/3 right-1/3 transform translate-x-1/2 -translate-y-1/2">
@@ -165,8 +167,8 @@ const LiveMap = () => {
           </Button>
         </div>
 
-        {/* Map Legend */}
-        <div className="absolute top-6 right-6 bg-white rounded-lg shadow-lg p-4 z-10">
+        {/* Desktop Legend */}
+        <div className="absolute top-6 right-6 bg-white rounded-lg shadow-lg p-4 z-10 hidden md:block">
           <h3 className="font-semibold text-gray-900 mb-3">Legend</h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center">
@@ -186,6 +188,43 @@ const LiveMap = () => {
               <span>Danger Zones</span>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Legend - Sheet */}
+        <div className="absolute top-6 right-6 z-10 md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Info className="w-4 h-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <SheetHeader>
+                <SheetTitle>Map Legend</SheetTitle>
+                <SheetDescription>
+                  Understanding the map symbols
+                </SheetDescription>
+              </SheetHeader>
+              <div className="space-y-4 mt-6">
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full mr-3"></div>
+                  <span>Your Current Location</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-green-500 rounded-full mr-3 flex items-center justify-center">
+                    <Shield className="w-3 h-3 text-white" />
+                  </div>
+                  <span>Safe Zones (Churches, Hospitals)</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-red-500 rounded-full mr-3 flex items-center justify-center">
+                    <AlertTriangle className="w-3 h-3 text-white" />
+                  </div>
+                  <span>Danger Zones (Active Incidents)</span>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </div>
