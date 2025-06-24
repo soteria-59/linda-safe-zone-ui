@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Phone, MessageSquare, Globe, Github, Heart, Shield, AlertTriangle, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,12 +65,26 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulate form submission
-    console.log('Contact form submitted:', formData);
+    // Create email content
+    const subject = encodeURIComponent(`Linda Contact Form - ${formData.category || 'General'}`);
+    const body = encodeURIComponent(`
+Name: ${formData.name || 'Not provided'}
+Email: ${formData.email || 'Not provided'}
+Category: ${formData.category || 'Not specified'}
+
+Message:
+${formData.message}
+
+---
+Sent from Linda Contact Form
+    `);
+    
+    // Open email client
+    window.location.href = `mailto:gfordevworks@gmail.com?subject=${subject}&body=${body}`;
     
     toast({
-      title: 'Message Sent',
-      description: 'Thank you for reaching out. We\'ll get back to you soon.',
+      title: 'Email Client Opened',
+      description: 'Your default email client should open with the message pre-filled.',
     });
     
     // Reset form
@@ -330,7 +343,11 @@ const Contact = () => {
               <p className="text-gray-600 mb-4">
                 Join our community for real-time updates and support.
               </p>
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => window.open('https://wa.me/254731060641', '_blank')}
+              >
                 Join Group
               </Button>
             </div>
@@ -360,7 +377,11 @@ const Contact = () => {
               <p className="text-gray-600 mb-4">
                 Discuss safety tips and share experiences.
               </p>
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => window.open('https://twitter.com', '_blank')}
+              >
                 Join Forum
               </Button>
             </div>

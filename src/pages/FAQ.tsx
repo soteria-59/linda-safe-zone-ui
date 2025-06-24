@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Shield, Globe, Users, Smartphone, AlertTriangle, Book } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -51,6 +50,37 @@ const FAQ = () => {
         {
           question: 'Can I use Linda during internet shutdowns?',
           answer: 'Linda works offline for essential features like the Info Hub. Map data is cached when possible. The panic button can still compose WhatsApp messages for when connectivity returns. We\'re working on mesh networking features for future updates.'
+        }
+      ]
+    },
+    {
+      category: 'Emergency Contacts',
+      icon: AlertTriangle,
+      color: 'text-red-600',
+      questions: [
+        {
+          question: 'What emergency numbers should I know?',
+          answer: `Emergency Services:
+• Police Emergency: 999, 112
+• Kenya Red Cross (Ambulance): +254 703 037000
+
+Legal Assistance:
+• Amnesty International Kenya: +254 20 4283000, +254 20 2185905
+• Law Society of Kenya (LSK): 0800 720 434 (Toll-free)
+• Kenya Human Rights Commission (KHRC): +254 20 2044545, +254 722 264497
+
+Medical Support:
+• Independent Medico-Legal Unit (IMLU): +254 20 2650644
+• Medics for Kenya: +254 708 311740, +254 739 567483`
+        },
+        {
+          question: 'Who should I contact for medical emergencies during protests?',
+          answer: `Medical Emergency Contacts:
+• Kenya Red Cross (Ambulance): +254 703 037000
+• Independent Medico-Legal Unit (IMLU): +254 20 2650644 - Medical and legal documentation of violations
+• Medics for Kenya: +254 708 311740, +254 739 567483 - Field medical support
+
+Always call 999 or 112 for immediate emergency response.`
         }
       ]
     },

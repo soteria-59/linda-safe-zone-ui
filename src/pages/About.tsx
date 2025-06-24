@@ -1,9 +1,12 @@
 
-import React from 'react';
-import { Shield, Users, Globe, Github, Heart, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shield, Users, Globe, Github, Heart, Award, Play, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const About = () => {
+  const [showVideo, setShowVideo] = useState(false);
+
   const mission = [
     {
       icon: Shield,
@@ -13,7 +16,7 @@ const About = () => {
     {
       icon: Users,
       title: 'Community Driven',
-      description: 'Built by activists, for activists. The community shapes our development.'
+      description: 'Ngao kwa Mkenya. The community shapes our development.'
     },
     {
       icon: Globe,
@@ -45,11 +48,36 @@ const About = () => {
     }
   ];
 
+  const handleContribute = () => {
+    const subject = encodeURIComponent('Linda Contribution Inquiry');
+    const body = encodeURIComponent(`Hello,
+
+I would like to contribute to the Linda project. Please let me know how I can help with:
+
+- Development and coding
+- Content creation and documentation  
+- Community outreach
+- Testing and feedback
+- Other ways to support the project
+
+Best regards`);
+    
+    window.location.href = `mailto:gfordevworks@gmail.com?subject=${subject}&body=${body}`;
+  };
+
   return (
     <div className="min-h-screen pt-16">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-50 via-white to-red-50 py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Hero Section with Protest Banner Background */}
+      <section className="relative bg-gradient-to-br from-green-50 via-white to-red-50 py-24 overflow-hidden">
+        {/* Background Protest Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`
+          }}
+        />
+        
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-red-600 rounded-3xl flex items-center justify-center mx-auto mb-8">
             <Shield className="w-10 h-10 text-white" />
           </div>
@@ -58,11 +86,64 @@ const About = () => {
             About Linda
           </h1>
           
+          {/* Overlay Text */}
+          <div className="relative mb-6">
+            <p className="text-2xl font-bold text-gray-800 mb-4 bg-white/80 backdrop-blur-sm inline-block px-6 py-3 rounded-lg">
+              Built to protect Mkenya.
+            </p>
+          </div>
+          
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Linda is a community-driven platform designed to enhance safety during peaceful protests in Kenya. 
             We believe in the right to peaceful assembly and the importance of keeping protesters safe.
           </p>
+
+          {/* YouTube Video Embed */}
+          <div className="max-w-2xl mx-auto">
+            <div 
+              className="relative bg-black rounded-2xl overflow-hidden shadow-2xl cursor-pointer group"
+              onClick={() => setShowVideo(true)}
+            >
+              <img 
+                src="https://img.youtube.com/vi/qz0f1yyf_eA/maxresdefault.jpg"
+                alt="Linda Demo Video"
+                className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Play className="w-8 h-8 text-white ml-1" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Video Modal */}
+        <Dialog open={showVideo} onOpenChange={setShowVideo}>
+          <DialogContent className="max-w-4xl p-0 bg-black">
+            <div className="relative">
+              <Button
+                onClick={() => setShowVideo(false)}
+                className="absolute -top-12 right-0 bg-white/20 hover:bg-white/30 text-white z-50"
+                size="sm"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              {showVideo && (
+                <iframe
+                  width="100%"
+                  height="500"
+                  src="https://www.youtube.com/embed/qz0f1yyf_eA?autoplay=1"
+                  title="Linda Demo"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="rounded-lg"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </section>
 
       {/* Mission Section */}
@@ -107,15 +188,18 @@ const About = () => {
           <div className="prose prose-lg mx-auto text-gray-600">
             <p className="text-lg leading-relaxed mb-6">
               Linda was born from the recognition that peaceful protesters in Kenya needed better tools 
-              to stay safe while exercising their constitutional rights. Named after Linda Wanjiku, 
-              representing every ordinary Kenyan fighting for their rights, our platform bridges the 
+              to stay safe while exercising their constitutional rights. Named after Linda representing 
+              every ordinary Mkenya fighting for their rights, our platform bridges the 
               gap between digital safety and physical protests.
             </p>
             
             <p className="text-lg leading-relaxed mb-6">
               We recognized that existing communication channels weren't adequate for the fast-moving, 
               high-stakes environment of peaceful protests. Protesters needed real-time information 
-              about safe zones, danger areas, and emergency resources - all while maintaining their anonymity.
+              about safe zones, danger areas, and emergency resources - all while maintaining their anonymity. 
+              While Linda was built with collective urgency by civic-minded developers and activists, 
+              a patriot developer Gabriel of Bytic Labs felt it wise to help prototype a tool that could 
+              truly shield Mkenya. But ultimately, Linda belongs to the people.
             </p>
             
             <p className="text-lg leading-relaxed">
@@ -226,6 +310,7 @@ const About = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
+              onClick={handleContribute}
               className="bg-white text-green-600 hover:bg-gray-50"
             >
               <Heart className="w-5 h-5 mr-2" />
@@ -235,10 +320,11 @@ const About = () => {
             <Button 
               size="lg" 
               variant="outline"
+              onClick={() => window.open('https://twitter.com', '_blank')}
               className="bg-transparent border-white text-white hover:bg-white hover:text-green-600"
             >
               <Github className="w-5 h-5 mr-2" />
-              GitHub
+              Community Forum
             </Button>
           </div>
         </div>
