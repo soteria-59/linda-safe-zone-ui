@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import ReportChaosMap from '@/components/ReportChaosMap';
 
 const ReportChaos = () => {
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -120,59 +121,10 @@ const ReportChaos = () => {
 
       <div className="p-4 space-y-6">
         {/* Map Selection */}
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <h2 className="font-semibold text-gray-900 mb-3 flex items-center">
-            <MapPin className="w-5 h-5 text-red-600 mr-2" />
-            Select Location
-          </h2>
-          
-          <div className="relative">
-            {/* OpenStreetMap Implementation */}
-            <div id="maps" className="h-48 rounded-lg overflow-hidden relative border-2 border-dashed border-gray-300">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                frameBorder="0" 
-                scrolling="no" 
-                marginHeight={0} 
-                marginWidth={0} 
-                src="https://www.openstreetmap.org/export/embed.html?bbox=36.800,-1.300,36.850,-1.250&layer=mapnik"
-                className="absolute inset-0"
-              />
-              
-              {/* Click overlay for location selection */}
-              <div 
-                className="absolute inset-0 cursor-crosshair z-10"
-                onClick={handleMapClick}
-              >
-                {selectedLocation && (
-                  <div 
-                    className="absolute w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 z-20"
-                    style={{
-                      left: '50%',
-                      top: '50%'
-                    }}
-                  >
-                    <AlertTriangle className="w-3 h-3 text-white" />
-                  </div>
-                )}
-              </div>
-              
-              {/* Instructions overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-15">
-                {selectedLocation ? (
-                  <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
-                    Location Selected
-                  </span>
-                ) : (
-                  <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
-                    Tap to select location
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <ReportChaosMap 
+          onLocationSelect={(lat, lng) => setSelectedLocation({ lat, lng })}
+          selectedLocation={selectedLocation}
+        />
 
         {/* Danger Type Selection */}
         <div className="bg-white rounded-xl p-4 shadow-sm">

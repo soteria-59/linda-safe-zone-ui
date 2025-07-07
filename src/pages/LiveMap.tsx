@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import FunctionalMap from '@/components/FunctionalMap';
 
 interface ChaosReport {
   id: string;
@@ -188,142 +189,13 @@ const LiveMap = () => {
 
       {/* Map Container */}
       <div className="relative h-[calc(100vh-180px)]">
-        {/* OpenStreetMap Implementation */}
-        <div id="maps" className="w-full h-full">
-          <iframe 
-            width="100%" 
-            height="100%" 
-            frameBorder="0" 
-            scrolling="no" 
-            marginHeight={0} 
-            marginWidth={0} 
-            src="https://www.openstreetmap.org/export/embed.html?bbox=36.800,-1.300,36.850,-1.250&layer=mapnik"
-            className="absolute inset-0"
-          />
-          
-          {/* Current location overlay */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-            <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-              You are here
-            </div>
-          </div>
-          
-          {/* Safe zones overlay - only show when enabled */}
-          {showSafeZones && (
-            <>
-              <div className="absolute top-1/4 left-1/3 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                  All Saints Cathedral
-                  <div className="text-xs opacity-75">Verified Safe Zone</div>
-                </div>
-              </div>
-              
-              <div className="absolute bottom-1/4 right-1/4 transform translate-x-1/2 translate-y-1/2 z-10">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                  Uhuru Park
-                  <div className="text-xs opacity-75">Community Safe Zone</div>
-                </div>
-              </div>
-
-              <div className="absolute top-1/3 right-1/2 transform translate-x-1/4 -translate-y-1/2 z-10">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                  University of Nairobi
-                  <div className="text-xs opacity-75">Student Safe Zone</div>
-                </div>
-              </div>
-            </>
-          )}
-          
-          {/* Police blocks overlay - only show when enabled */}
-          {showPoliceBlocks && (
-            <>
-              <div className="absolute top-1/6 left-2/3 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                  Police Checkpoint
-                  <div className="text-xs opacity-75">Active Block</div>
-                </div>
-              </div>
-              
-              <div className="absolute bottom-1/3 left-1/4 transform -translate-x-1/2 translate-y-1/2 z-10">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                  Road Block
-                  <div className="text-xs opacity-75">Traffic Control</div>
-                </div>
-              </div>
-            </>
-          )}
-          
-          {/* Real-time chaos zones - only show when enabled */}
-          {showChaosZones && chaosReports.map((report, index) => (
-            <div 
-              key={report.id} 
-              className={`absolute z-10 cursor-pointer`}
-              style={{
-                top: `${30 + (index * 15)}%`,
-                right: `${20 + (index * 10)}%`
-              }}
-              onClick={() => handleAlertClick(report)}
-            >
-              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg animate-pulse hover:scale-110 transition-transform">
-                <AlertTriangle className="w-4 h-4 text-white" />
-              </div>
-              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                {report.danger_type}
-                <div className="text-xs opacity-75">{new Date(report.created_at).toLocaleTimeString()}</div>
-              </div>
-            </div>
-          ))}
-
-          {/* Real-time panic alerts with waveform animation */}
-          {panicAlerts.map((alert, index) => (
-            <div 
-              key={alert.id} 
-              className="absolute z-10 cursor-pointer group"
-              style={{
-                top: `${40 + (index * 12)}%`,
-                left: `${25 + (index * 8)}%`
-              }}
-              onClick={() => handlePanicClick(alert)}
-            >
-              {/* Waveform rings */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 border-2 border-red-400 rounded-full animate-ping opacity-30"></div>
-                <div className="absolute w-12 h-12 border-2 border-red-500 rounded-full animate-ping opacity-50 animation-delay-75"></div>
-                <div className="absolute w-8 h-8 border-2 border-red-600 rounded-full animate-ping opacity-70 animation-delay-150"></div>
-              </div>
-              
-              {/* Main panic icon */}
-              <div className="relative w-6 h-6 bg-red-800 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border-2 border-white z-10">
-                <AlertTriangle className="w-3 h-3 text-white" />
-              </div>
-              
-              {/* Info tooltip - only show on hover */}
-              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-red-800 text-white px-3 py-2 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                <div className="font-semibold">PANIC ALERT</div>
-                <div className="opacity-75">{new Date(alert.created_at).toLocaleTimeString()}</div>
-                {alert.emergency_note && (
-                  <div className="text-xs mt-1 opacity-90">{alert.emergency_note}</div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <FunctionalMap
+          showSafeZones={showSafeZones}
+          showChaosZones={showChaosZones}
+          showPoliceBlocks={showPoliceBlocks}
+          chaosReports={chaosReports}
+          panicAlerts={panicAlerts}
+        />
 
         {/* Action Buttons */}
         <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-20">

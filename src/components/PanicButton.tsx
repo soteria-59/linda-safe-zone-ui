@@ -94,13 +94,46 @@ Sent from Linda Safety App`;
             break;
             
           case 'call':
-            // Try to initiate emergency call to emergency contacts
-            window.location.href = 'tel:+254703037000';
-            toast({
-              title: "Emergency Call Initiated",
-              description: "Calling Kenya Red Cross emergency line. Panic alert is now live on the map.",
-              variant: "destructive"
-            });
+            // Access user's emergency contacts from phone
+            if ('contacts' in navigator && 'select' in (navigator as any).contacts) {
+              try {
+                const contacts = await (navigator as any).contacts.select(['name', 'tel'], { multiple: true });
+                if (contacts && contacts.length > 0) {
+                  // Use first contact's phone number
+                  const phoneNumber = contacts[0].tel[0];
+                  window.location.href = `tel:${phoneNumber}`;
+                  toast({
+                    title: "Emergency Call Initiated",
+                    description: "Calling your emergency contact. Panic alert is now live on the map.",
+                    variant: "destructive"
+                  });
+                } else {
+                  // Fallback to emergency services
+                  window.location.href = 'tel:999';
+                  toast({
+                    title: "Emergency Call Initiated",
+                    description: "Calling emergency services (999). Panic alert is now live on the map.",
+                    variant: "destructive"
+                  });
+                }
+              } catch (error) {
+                // Fallback to emergency services
+                window.location.href = 'tel:999';
+                toast({
+                  title: "Emergency Call Initiated",
+                  description: "Calling emergency services (999). Panic alert is now live on the map.",
+                  variant: "destructive"
+                });
+              }
+            } else {
+              // Fallback to emergency services
+              window.location.href = 'tel:999';
+              toast({
+                title: "Emergency Call Initiated",
+                description: "Calling emergency services (999). Panic alert is now live on the map.",
+                variant: "destructive"
+              });
+            }
             break;
         }
         
@@ -142,10 +175,10 @@ Sent from Linda Safety App`;
           });
           break;
         case 'call':
-          window.location.href = 'tel:+254703037000';
+          window.location.href = 'tel:999';
           toast({
             title: "Emergency Call Initiated",
-            description: "Calling Kenya Red Cross emergency line. Panic alert is now live on the map.",
+            description: "Calling emergency services (999). Panic alert is now live on the map.",
             variant: "destructive"
           });
           break;
@@ -162,7 +195,7 @@ Sent from Linda Safety App`;
   return (
     <>
       {/* Panic Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-24 right-6 z-50">
         <Button
           onClick={handlePanicPress}
           className={`w-16 h-16 rounded-full shadow-2xl transition-all duration-200 ${
@@ -240,7 +273,7 @@ Sent from Linda Safety App`;
                 disabled={isSubmitting}
               >
                 <Phone className="w-4 h-4 mr-2" />
-                Call Emergency (999)
+                Call Emergency Contacts
               </Button>
             </div>
             
