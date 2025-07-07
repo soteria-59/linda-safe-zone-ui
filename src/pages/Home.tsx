@@ -89,19 +89,20 @@ const Home = () => {
               </Button>
             </div>
 
-            {/* Demo Video Placeholder */}
+            {/* Demo Video Preview */}
             <div className="max-w-4xl mx-auto">
-              <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl cursor-pointer" onClick={handleWatchDemo}>
-                <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-green-800/20 to-red-800/20">
-                  <Button 
-                    size="lg" 
-                    className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm transition-all duration-300 hover:scale-105"
-                  >
-                    <Play className="w-8 h-8 mr-2" />
-                    Watch Demo
-                  </Button>
-                </div>
-                <div className="absolute inset-0 bg-black/10 hover:bg-black/5 transition-colors"></div>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <iframe 
+                  width="100%" 
+                  height="450" 
+                  src="https://www.youtube.com/embed/qz0f1yyf_eA" 
+                  title="Linda Safety App Demo - June 25th Protests"
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                  className="aspect-video"
+                />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 to-transparent"></div>
               </div>
             </div>
           </div>

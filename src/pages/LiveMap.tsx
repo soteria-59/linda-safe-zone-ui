@@ -30,6 +30,7 @@ interface PanicAlert {
 const LiveMap = () => {
   const [showSafeZones, setShowSafeZones] = useState(false);
   const [showChaosZones, setShowChaosZones] = useState(false);
+  const [showPoliceBlocks, setShowPoliceBlocks] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [chaosReports, setChaosReports] = useState<ChaosReport[]>([]);
   const [panicAlerts, setPanicAlerts] = useState<PanicAlert[]>([]);
@@ -151,7 +152,7 @@ const LiveMap = () => {
           </div>
 
           {/* Layer Toggles */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Button
               variant={showSafeZones ? "default" : "outline"}
               size="sm"
@@ -170,6 +171,16 @@ const LiveMap = () => {
             >
               <AlertTriangle className="w-4 h-4 mr-1" />
               Chaos Zones
+            </Button>
+            
+            <Button
+              variant={showPoliceBlocks ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowPoliceBlocks(!showPoliceBlocks)}
+              className={`${showPoliceBlocks ? 'bg-blue-600 hover:bg-blue-700 ring-2 ring-blue-300' : 'border-blue-600 text-blue-600 hover:bg-blue-50'}`}
+            >
+              <Shield className="w-4 h-4 mr-1" />
+              Police Blocks
             </Button>
           </div>
         </div>
@@ -233,6 +244,31 @@ const LiveMap = () => {
             </>
           )}
           
+          {/* Police blocks overlay - only show when enabled */}
+          {showPoliceBlocks && (
+            <>
+              <div className="absolute top-1/6 left-2/3 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
+                  Police Checkpoint
+                  <div className="text-xs opacity-75">Active Block</div>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-1/3 left-1/4 transform -translate-x-1/2 translate-y-1/2 z-10">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
+                  Road Block
+                  <div className="text-xs opacity-75">Traffic Control</div>
+                </div>
+              </div>
+            </>
+          )}
+          
           {/* Real-time chaos zones - only show when enabled */}
           {showChaosZones && chaosReports.map((report, index) => (
             <div 
@@ -254,23 +290,36 @@ const LiveMap = () => {
             </div>
           ))}
 
-          {/* Real-time panic alerts */}
+          {/* Real-time panic alerts with waveform animation */}
           {panicAlerts.map((alert, index) => (
             <div 
               key={alert.id} 
-              className={`absolute z-10 cursor-pointer`}
+              className="absolute z-10 cursor-pointer group"
               style={{
                 top: `${40 + (index * 12)}%`,
                 left: `${25 + (index * 8)}%`
               }}
               onClick={() => handlePanicClick(alert)}
             >
-              <div className="w-10 h-10 bg-red-800 rounded-full flex items-center justify-center shadow-lg animate-pulse hover:scale-110 transition-transform border-2 border-white">
-                <AlertTriangle className="w-5 h-5 text-white" />
+              {/* Waveform rings */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 border-2 border-red-400 rounded-full animate-ping opacity-30"></div>
+                <div className="absolute w-12 h-12 border-2 border-red-500 rounded-full animate-ping opacity-50 animation-delay-75"></div>
+                <div className="absolute w-8 h-8 border-2 border-red-600 rounded-full animate-ping opacity-70 animation-delay-150"></div>
               </div>
-              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-red-800 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
-                PANIC ALERT
-                <div className="text-xs opacity-75">{new Date(alert.created_at).toLocaleTimeString()}</div>
+              
+              {/* Main panic icon */}
+              <div className="relative w-6 h-6 bg-red-800 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border-2 border-white z-10">
+                <AlertTriangle className="w-3 h-3 text-white" />
+              </div>
+              
+              {/* Info tooltip - only show on hover */}
+              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-red-800 text-white px-3 py-2 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                <div className="font-semibold">PANIC ALERT</div>
+                <div className="opacity-75">{new Date(alert.created_at).toLocaleTimeString()}</div>
+                {alert.emergency_note && (
+                  <div className="text-xs mt-1 opacity-90">{alert.emergency_note}</div>
+                )}
               </div>
             </div>
           ))}
@@ -330,6 +379,12 @@ const LiveMap = () => {
                   <span>Danger Zones (Active Incidents)</span>
                 </div>
                 <div className="flex items-center">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full mr-3 flex items-center justify-center">
+                    <Shield className="w-3 h-3 text-white" />
+                  </div>
+                  <span>Police Blocks</span>
+                </div>
+                <div className="flex items-center">
                   <div className="w-6 h-6 bg-red-800 rounded-full mr-3 flex items-center justify-center">
                     <AlertTriangle className="w-3 h-3 text-white" />
                   </div>
@@ -359,6 +414,12 @@ const LiveMap = () => {
                 <AlertTriangle className="w-2 h-2 text-white" />
               </div>
               <span>Danger Zones</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-blue-600 rounded-full mr-2 flex items-center justify-center">
+                <Shield className="w-2 h-2 text-white" />
+              </div>
+              <span>Police Blocks</span>
             </div>
             <div className="flex items-center">
               <div className="w-4 h-4 bg-red-800 rounded-full mr-2 flex items-center justify-center">
