@@ -1,14 +1,9 @@
 
-import React, { useState } from 'react';
-import { Shield, Users, Globe, Heart, Code, Target, ExternalLink, Play } from 'lucide-react';
+import React from 'react';
+import { Shield, Users, Globe, Heart, Code, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const About = () => {
-  const [showVideo, setShowVideo] = useState(false);
-
-  const handleWatchDemo = () => {
-    window.open('https://www.youtube.com/watch?v=qz0f1yyf_eA&pp=ygUJanVuZSAyNXRo', '_blank');
-  };
 
   return (
     <div className="min-h-screen pt-16">
@@ -40,56 +35,16 @@ const About = () => {
           
           <div className="prose prose-lg max-w-none">
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Linda was born from the urgent need to protect peaceful protesters in Kenya during a time when civic engagement carried unprecedented risks. As citizens took to the streets to exercise their constitutional right to peaceful assembly, they faced increasing dangers from unpredictable crowd dynamics, tear gas deployments, and rapidly changing security situations.
-            </p>
-            
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Our platform emerged from the recognition that information saves lives. When protesters know where safe zones are located, when they can quickly alert others to emerging dangers, and when they have immediate access to legal and medical support, their safety increases exponentially. Linda transforms individual smartphones into nodes in a protective network that shields the entire community.
-            </p>
-            
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              While Linda was built with collective urgency by civic-minded developers and activists, a patriot developer Gabriel of Bytic Labs felt it wise to help prototype a tool that could truly shield Mkenya. But ultimately, Linda belongs to the people. Every feature has been designed with input from protesters, human rights organizations, and legal experts who understand the ground realities of exercising democratic rights in challenging environments.
+              Linda was born from the urgent need to protect peaceful protesters in Kenya during a time when civic engagement carried unprecedented risks. Our platform emerged from the recognition that information saves lives - when protesters have access to real-time safety information and emergency support, their safety increases exponentially.
             </p>
             
             <p className="text-lg text-gray-700 leading-relaxed">
-              Today, Linda stands as more than just an app—it's a testament to the power of technology in service of democracy, a digital manifestation of the principle that safety should never be a barrier to peaceful civic participation.
+              Today, Linda stands as a testament to the power of technology in service of democracy, ensuring that safety is never a barrier to peaceful civic participation.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Demo Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-8">See Linda in Action</h2>
-          <p className="text-xl text-gray-600 mb-12">
-            Watch how Linda helps keep protesters safe during demonstrations
-          </p>
-          
-          <div className="relative max-w-2xl mx-auto">
-            <div 
-              className="relative bg-gray-200 rounded-xl overflow-hidden cursor-pointer group shadow-2xl"
-              onClick={handleWatchDemo}
-            >
-              {/* YouTube Thumbnail Placeholder */}
-              <div className="aspect-video bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-opacity-30 transition-all duration-300 group-hover:scale-110">
-                    <Play className="w-8 h-8 text-white ml-1" />
-                  </div>
-                  <h3 className="text-white text-xl font-semibold mb-2">Linda Safety Demo</h3>
-                  <p className="text-white text-sm opacity-90">Click to watch on YouTube</p>
-                </div>
-              </div>
-              
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
-                <ExternalLink className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Our Mission */}
       <section className="py-20 bg-white">

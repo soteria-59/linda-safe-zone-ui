@@ -94,11 +94,11 @@ Sent from Linda Safety App`;
             break;
             
           case 'call':
-            // Try to initiate emergency call
-            window.location.href = 'tel:999';
+            // Try to initiate emergency call to emergency contacts
+            window.location.href = 'tel:+254703037000';
             toast({
               title: "Emergency Call Initiated",
-              description: "Attempting to call emergency services (999). Panic alert is now live on the map.",
+              description: "Calling Kenya Red Cross emergency line. Panic alert is now live on the map.",
               variant: "destructive"
             });
             break;
@@ -142,10 +142,10 @@ Sent from Linda Safety App`;
           });
           break;
         case 'call':
-          window.location.href = 'tel:999';
+          window.location.href = 'tel:+254703037000';
           toast({
             title: "Emergency Call Initiated",
-            description: "Attempting to call emergency services (999). Panic alert is now live on the map.",
+            description: "Calling Kenya Red Cross emergency line. Panic alert is now live on the map.",
             variant: "destructive"
           });
           break;

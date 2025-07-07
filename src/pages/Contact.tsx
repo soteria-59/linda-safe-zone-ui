@@ -203,16 +203,16 @@ Sent from Linda Contact Form
 
           {/* Medical Support */}
           <div>
-            <h3 className="text-2xl font-semibold text-blue-600 mb-6 flex items-center">
+            <h3 className="text-2xl font-semibold text-purple-600 mb-6 flex items-center">
               <Heart className="w-6 h-6 mr-2" />
               Medical Support
             </h3>
             <div className="grid md:grid-cols-2 gap-6">
               {getContactsByType('medical').map((contact, index) => (
-                <div key={index} className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div key={index} className="bg-purple-50 border border-purple-200 rounded-xl p-6">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <contact.icon className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <contact.icon className="w-6 h-6 text-purple-600" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 mb-2">
@@ -223,7 +223,7 @@ Sent from Linda Contact Form
                           <a
                             key={numIndex}
                             href={`tel:${number}`}
-                            className="block text-blue-600 font-mono text-lg hover:text-blue-700"
+                            className="block text-purple-600 font-mono text-lg hover:text-purple-700"
                           >
                             {number}
                           </a>
