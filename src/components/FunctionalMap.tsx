@@ -77,22 +77,20 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
 
   return (
     <MapContainer
-      // @ts-ignore
-      center={currentPosition}
+      center={[currentPosition.lat, currentPosition.lng]}
       zoom={13}
       className="w-full h-full rounded-lg"
       style={{ minHeight: '400px' }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        // @ts-ignore
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       
       <MapClickHandler />
 
       {/* Current Location */}
-      <Marker position={currentPosition}>
+      <Marker position={[currentPosition.lat, currentPosition.lng]}>
         <Popup>
           <div className="text-center bg-blue-500 text-white p-2 rounded">
             <strong>📍 You are here</strong>
