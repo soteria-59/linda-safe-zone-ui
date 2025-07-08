@@ -28,17 +28,6 @@ const ReportChaos = () => {
     'Other'
   ];
 
-  const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    
-    // Convert click position to lat/lng coordinates for Nairobi area
-    const lat = -1.2921 + (y / rect.height) * 0.1;
-    const lng = 36.8219 + (x / rect.width) * 0.1;
-    
-    setSelectedLocation({ lat, lng });
-  };
 
   const handleSubmit = async () => {
     if (!selectedLocation || !dangerType) {

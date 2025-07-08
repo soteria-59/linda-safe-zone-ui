@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { LatLng } from 'leaflet';
+import L, { LatLng } from 'leaflet';
 import { AlertTriangle, Shield, Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// Use simple div markers instead of Leaflet icons for simplicity
+// Fix Leaflet default icon issues
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 interface FunctionalMapProps {
   showSafeZones: boolean;
@@ -88,8 +94,8 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       {/* Current Location */}
       <Marker position={currentPosition}>
         <Popup>
-          <div className="text-center">
-            <strong>You are here</strong>
+          <div className="text-center bg-blue-500 text-white p-2 rounded">
+            <strong>📍 You are here</strong>
           </div>
         </Popup>
       </Marker>
@@ -98,12 +104,16 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       {showSafeZones && safeZones.map((zone) => (
         <Marker key={`safe-${zone.id}`} position={[zone.lat, zone.lng]}>
           <Popup>
-            <div className="bg-white p-3 rounded-lg shadow-lg border-0">
-              <h3 className="font-semibold text-green-700">{zone.name}</h3>
+            <div className="bg-white p-3 rounded-lg shadow-lg border-2 border-green-500">
+              <div className="flex items-center mb-2">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-2">
+                  <Shield className="w-3 h-3 text-white" />
+                </div>
+                <h3 className="font-semibold text-green-700">{zone.name}</h3>
+              </div>
               <p className="text-sm text-gray-600">{zone.type}</p>
-              <div className="mt-2 flex items-center text-xs text-green-600">
-                <Shield className="w-3 h-3 mr-1" />
-                Safe Zone
+              <div className="mt-2 px-2 py-1 bg-green-100 rounded text-xs text-green-700">
+                ✅ Safe Zone
               </div>
             </div>
           </Popup>
@@ -114,12 +124,16 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       {showChaosZones && chaosReports.map((report) => (
         <Marker key={`chaos-${report.id}`} position={[report.location_lat, report.location_lng]}>
           <Popup>
-            <div className="bg-white p-3 rounded-lg shadow-lg border-0">
-              <h3 className="font-semibold text-red-700">{report.danger_type}</h3>
+            <div className="bg-white p-3 rounded-lg shadow-lg border-2 border-red-500">
+              <div className="flex items-center mb-2">
+                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center mr-2">
+                  <AlertTriangle className="w-3 h-3 text-white" />
+                </div>
+                <h3 className="font-semibold text-red-700">{report.danger_type}</h3>
+              </div>
               {report.description && <p className="text-sm text-gray-600 mt-1">{report.description}</p>}
-              <div className="mt-2 flex items-center text-xs text-red-600">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {new Date(report.created_at).toLocaleTimeString()}
+              <div className="mt-2 px-2 py-1 bg-red-100 rounded text-xs text-red-700">
+                ⚠️ {new Date(report.created_at).toLocaleTimeString()}
               </div>
             </div>
           </Popup>
@@ -130,12 +144,16 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       {showPoliceBlocks && policeBlocks.map((block) => (
         <Marker key={`police-${block.id}`} position={[block.lat, block.lng]}>
           <Popup>
-            <div className="bg-white p-3 rounded-lg shadow-lg border-0">
-              <h3 className="font-semibold text-blue-700">{block.name}</h3>
+            <div className="bg-white p-3 rounded-lg shadow-lg border-2 border-blue-600">
+              <div className="flex items-center mb-2">
+                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center mr-2">
+                  <Shield className="w-3 h-3 text-white" />
+                </div>
+                <h3 className="font-semibold text-blue-700">{block.name}</h3>
+              </div>
               <p className="text-sm text-gray-600">{block.type}</p>
-              <div className="mt-2 flex items-center text-xs text-blue-600">
-                <Shield className="w-3 h-3 mr-1" />
-                Police Block
+              <div className="mt-2 px-2 py-1 bg-blue-100 rounded text-xs text-blue-700">
+                🚔 Police Block
               </div>
             </div>
           </Popup>
@@ -146,12 +164,16 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       {panicAlerts.map((alert) => (
         <Marker key={`panic-${alert.id}`} position={[alert.location_lat, alert.location_lng]}>
           <Popup>
-            <div className="bg-white p-3 rounded-lg shadow-lg border-0">
-              <h3 className="font-semibold text-red-800">PANIC ALERT</h3>
+            <div className="bg-white p-3 rounded-lg shadow-lg border-2 border-red-800 animate-pulse">
+              <div className="flex items-center mb-2">
+                <div className="w-6 h-6 bg-red-800 rounded-full flex items-center justify-center mr-2 animate-ping">
+                  <AlertTriangle className="w-3 h-3 text-white" />
+                </div>
+                <h3 className="font-semibold text-red-800">🚨 PANIC ALERT</h3>
+              </div>
               {alert.emergency_note && <p className="text-sm text-gray-600 mt-1">{alert.emergency_note}</p>}
-              <div className="mt-2 flex items-center text-xs text-red-800">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {new Date(alert.created_at).toLocaleTimeString()}
+              <div className="mt-2 px-2 py-1 bg-red-200 rounded text-xs text-red-800 font-bold">
+                🆘 EMERGENCY - {new Date(alert.created_at).toLocaleTimeString()}
               </div>
             </div>
           </Popup>

@@ -94,43 +94,43 @@ Sent from Linda Safety App`;
             break;
             
           case 'call':
-            // Access user's emergency contacts from phone
-            if ('contacts' in navigator && 'select' in (navigator as any).contacts) {
+            // Try to access user's contacts (requires HTTPS and user permission)
+            if ('contacts' in navigator && 'ContactsManager' in window) {
               try {
-                const contacts = await (navigator as any).contacts.select(['name', 'tel'], { multiple: true });
-                if (contacts && contacts.length > 0) {
-                  // Use first contact's phone number
+                const contacts = await (navigator as any).contacts.select(['name', 'tel'], { multiple: false });
+                if (contacts && contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+                  // Use selected contact's phone number
                   const phoneNumber = contacts[0].tel[0];
                   window.location.href = `tel:${phoneNumber}`;
                   toast({
                     title: "Emergency Call Initiated",
-                    description: "Calling your emergency contact. Panic alert is now live on the map.",
+                    description: `Calling ${contacts[0].name || 'emergency contact'}. Panic alert is now live on the map.`,
                     variant: "destructive"
                   });
                 } else {
-                  // Fallback to emergency services
-                  window.location.href = 'tel:999';
+                  // Fallback to Kenya Red Cross emergency line
+                  window.location.href = 'tel:1199';
                   toast({
                     title: "Emergency Call Initiated",
-                    description: "Calling emergency services (999). Panic alert is now live on the map.",
+                    description: "Calling Kenya Red Cross (1199). Panic alert is now live on the map.",
                     variant: "destructive"
                   });
                 }
               } catch (error) {
-                // Fallback to emergency services
-                window.location.href = 'tel:999';
+                // Fallback to Kenya Red Cross emergency line
+                window.location.href = 'tel:1199';
                 toast({
                   title: "Emergency Call Initiated",
-                  description: "Calling emergency services (999). Panic alert is now live on the map.",
+                  description: "Calling Kenya Red Cross (1199). Panic alert is now live on the map.",
                   variant: "destructive"
                 });
               }
             } else {
-              // Fallback to emergency services
-              window.location.href = 'tel:999';
+              // Fallback to Kenya Red Cross emergency line
+              window.location.href = 'tel:1199';
               toast({
                 title: "Emergency Call Initiated",
-                description: "Calling emergency services (999). Panic alert is now live on the map.",
+                description: "Calling Kenya Red Cross (1199). Panic alert is now live on the map.",
                 variant: "destructive"
               });
             }
@@ -175,10 +175,10 @@ Sent from Linda Safety App`;
           });
           break;
         case 'call':
-          window.location.href = 'tel:999';
+          window.location.href = 'tel:1199';
           toast({
             title: "Emergency Call Initiated",
-            description: "Calling emergency services (999). Panic alert is now live on the map.",
+            description: "Calling Kenya Red Cross (1199). Panic alert is now live on the map.",
             variant: "destructive"
           });
           break;
@@ -195,7 +195,7 @@ Sent from Linda Safety App`;
   return (
     <>
       {/* Panic Button */}
-      <div className="fixed bottom-24 right-6 z-50">
+      <div className="fixed bottom-32 right-6 z-50">
         <Button
           onClick={handlePanicPress}
           className={`w-16 h-16 rounded-full shadow-2xl transition-all duration-200 ${
