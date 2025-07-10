@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import L from 'leaflet';
+import 'leaflet-routing-machine';
 import { AlertTriangle, Shield } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
@@ -12,6 +13,8 @@ interface FunctionalMapProps {
   panicAlerts: any[];
   onReportLocation?: (lat: number, lng: number) => void;
   reportMode?: boolean;
+  showRoute?: boolean;
+  routeDestination?: { lat: number; lng: number };
 }
 
 const FunctionalMap: React.FC<FunctionalMapProps> = ({
@@ -21,10 +24,13 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
   chaosReports,
   panicAlerts,
   onReportLocation,
-  reportMode = false
+  reportMode = false,
+  showRoute = false,
+  routeDestination
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const routingControlRef = useRef<any>(null);
   const [currentPosition, setCurrentPosition] = useState<L.LatLng | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
@@ -74,14 +80,19 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
     function initializeMap(center: L.LatLng) {
       if (!mapContainerRef.current) return;
 
-      // Create map
+      // Create map with Kenya bounds
       const map = L.map(mapContainerRef.current, {
         center: [center.lat, center.lng],
         zoom: 13,
         zoomControl: true,
         scrollWheelZoom: true,
         doubleClickZoom: true,
-        touchZoom: true
+        touchZoom: true,
+        maxBounds: [
+          [5.0, 33.0], // Northeast: Northern Kenya/Ethiopia border
+          [-5.0, 42.0] // Southwest: Southern Kenya/Tanzania border
+        ],
+        maxBoundsViscosity: 0.8
       });
 
       // Add tile layer
@@ -258,12 +269,43 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
     });
   }, [showSafeZones, showChaosZones, showPoliceBlocks, chaosReports, panicAlerts, isMapReady]);
 
+  // Handle routing
+  useEffect(() => {
+    if (!mapRef.current || !isMapReady || !showRoute || !routeDestination || !currentPosition) return;
+
+    // Remove existing routing control
+    if (routingControlRef.current) {
+      mapRef.current.removeControl(routingControlRef.current);
+    }
+
+    // Add new routing control
+    routingControlRef.current = (L as any).Routing.control({
+      waypoints: [
+        L.latLng(currentPosition.lat, currentPosition.lng),
+        L.latLng(routeDestination.lat, routeDestination.lng)
+      ],
+      routeWhileDragging: false,
+      addWaypoints: false,
+      createMarker: () => null, // Don't create markers as we already have them
+      lineOptions: {
+        styles: [{ color: '#10b981', weight: 4, opacity: 0.8 }]
+      }
+    }).addTo(mapRef.current);
+
+    return () => {
+      if (routingControlRef.current && mapRef.current) {
+        mapRef.current.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
+      }
+    };
+  }, [showRoute, routeDestination, currentPosition, isMapReady]);
+
   return (
     <div className="w-full h-full relative">
       <div 
         ref={mapContainerRef} 
-        className="w-full h-full rounded-lg"
-        style={{ minHeight: '400px' }}
+        className="w-full h-full rounded-lg overflow-hidden"
+        style={{ minHeight: '400px', position: 'relative', zIndex: 1 }}
       />
     </div>
   );

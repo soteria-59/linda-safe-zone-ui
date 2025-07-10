@@ -3,6 +3,7 @@ import React from 'react';
 import { Shield, MapPin, AlertTriangle, Book, Users, Globe, ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import FloatingActionButtons from '@/components/FloatingActionButtons';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -203,6 +204,9 @@ const Home = () => {
           </Button>
         </div>
       </section>
+      
+      {/* Floating Action Buttons */}
+      <FloatingActionButtons />
     </div>
   );
 };

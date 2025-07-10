@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import FunctionalMap from '@/components/FunctionalMap';
+import FloatingActionButtons from '@/components/FloatingActionButtons';
 
 interface ChaosReport {
   id: string;
@@ -35,8 +36,16 @@ const LiveMap = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [chaosReports, setChaosReports] = useState<ChaosReport[]>([]);
   const [panicAlerts, setPanicAlerts] = useState<PanicAlert[]>([]);
+  const [showRoute, setShowRoute] = useState(false);
+  const [routeDestination, setRouteDestination] = useState<{ lat: number; lng: number } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Safe zones for routing
+  const safeZones = [
+    { lat: -1.2833, lng: 36.8167, name: "All Saints Cathedral" },
+    { lat: -1.2921, lng: 36.8219, name: "Uhuru Park" },
+  ];
 
   useEffect(() => {
     // Fetch existing chaos reports
@@ -110,12 +119,57 @@ const LiveMap = () => {
   }, []);
 
   const handleNearestSafeArea = () => {
-    setShowSafeZones(true);
-    setShowChaosZones(false);
-    toast({
-      title: "Safe Zones Highlighted",
-      description: "Safe zones are now visible on the map. Head to the nearest one.",
-    });
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          
+          // Find nearest safe zone
+          let nearestZone = safeZones[0];
+          let minDistance = Math.sqrt(
+            Math.pow(userLat - nearestZone.lat, 2) + 
+            Math.pow(userLng - nearestZone.lng, 2)
+          );
+          
+          safeZones.forEach(zone => {
+            const distance = Math.sqrt(
+              Math.pow(userLat - zone.lat, 2) + 
+              Math.pow(userLng - zone.lng, 2)
+            );
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestZone = zone;
+            }
+          });
+          
+          setShowSafeZones(true);
+          setShowRoute(true);
+          setRouteDestination({ lat: nearestZone.lat, lng: nearestZone.lng });
+          
+          toast({
+            title: "Route to " + nearestZone.name,
+            description: "Showing route to nearest safe zone.",
+          });
+        },
+        () => {
+          // Fallback if location not available
+          setShowSafeZones(true);
+          setRouteDestination({ lat: safeZones[0].lat, lng: safeZones[0].lng });
+          
+          toast({
+            title: "Safe Zones Highlighted",
+            description: "Safe zones are now visible. Enable location for routing.",
+          });
+        }
+      );
+    } else {
+      setShowSafeZones(true);
+      toast({
+        title: "Safe Zones Highlighted",
+        description: "Safe zones are now visible on the map.",
+      });
+    }
   };
 
   const handleAlertClick = (report: ChaosReport) => {
@@ -195,28 +249,12 @@ const LiveMap = () => {
           showPoliceBlocks={showPoliceBlocks}
           chaosReports={chaosReports}
           panicAlerts={panicAlerts}
+          showRoute={showRoute}
+          routeDestination={routeDestination}
         />
-
-        {/* Action Buttons */}
-        <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-20">
-          {/* Nearest Safe Area */}
-          <Button 
-            className="bg-green-600 hover:bg-green-700 shadow-lg"
-            onClick={handleNearestSafeArea}
-          >
-            <Navigation className="w-4 h-4 mr-2" />
-            Nearest Safe Area
-          </Button>
-          
-          {/* Report Chaos Button */}
-          <Button 
-            onClick={() => navigate('/report')}
-            className="bg-red-600 hover:bg-red-700 shadow-lg"
-          >
-            <AlertTriangle className="w-4 h-4 mr-2" />
-            Report Chaos
-          </Button>
-        </div>
+        
+        {/* Floating Action Buttons */}
+        <FloatingActionButtons onNearestSafeZone={handleNearestSafeArea} />
 
         {/* Mobile Legend - Sheet */}
         <div className="absolute top-6 right-6 z-20 md:hidden">
