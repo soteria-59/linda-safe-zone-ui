@@ -129,8 +129,11 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
         iconAnchor: [12, 12]
       });
 
-      // Add current location marker
-      L.marker([center.lat, center.lng], { icon: currentLocationIcon })
+      // Add current location marker - always visible
+      const userLocationMarker = L.marker([center.lat, center.lng], { 
+        icon: currentLocationIcon,
+        zIndexOffset: 1000 // Ensure it stays on top
+      })
         .addTo(map)
         .bindPopup('<div style="text-align: center; padding: 8px; background-color: #3b82f6; color: white; border-radius: 4px; font-weight: bold;">📍 You are here</div>');
 
@@ -157,9 +160,11 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
   useEffect(() => {
     if (!mapRef.current || !isMapReady) return;
 
-    // Clear existing markers except current location
+    // Clear existing markers except current location (keep user location visible)
     mapRef.current.eachLayer((layer) => {
-      if (layer instanceof L.Marker && layer.options.icon?.options?.className !== 'current-location-icon') {
+      if (layer instanceof L.Marker && 
+          layer.options.icon?.options?.className !== 'current-location-icon' &&
+          layer.options.zIndexOffset !== 1000) {
         mapRef.current?.removeLayer(layer);
       }
     });

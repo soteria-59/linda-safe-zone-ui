@@ -118,7 +118,7 @@ const LiveMap = () => {
     };
   }, []);
 
-  const handleNearestSafeArea = () => {
+  const handleNearestSafeArea = (transportMode = 'walk') => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -147,9 +147,16 @@ const LiveMap = () => {
           setShowRoute(true);
           setRouteDestination({ lat: nearestZone.lat, lng: nearestZone.lng });
           
+          const transportNames: { [key: string]: string } = {
+            walk: 'Walking route',
+            car: 'Driving route', 
+            bus: 'Public transport route',
+            private: 'Private transport route'
+          };
+          
           toast({
             title: "Route to " + nearestZone.name,
-            description: "Showing route to nearest safe zone.",
+            description: `${transportNames[transportMode] || 'Route'} to nearest safe zone.`,
           });
         },
         () => {
