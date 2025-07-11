@@ -12,19 +12,21 @@ const ReportChaosMap: React.FC<ReportChaosMapProps> = ({ onLocationSelect, selec
     <div className="bg-white rounded-xl p-4 shadow-sm">
       <h2 className="font-semibold text-gray-900 mb-3 flex items-center">
         <MapPin className="w-5 h-5 text-red-600 mr-2" />
-        Select Location
+        Pin Exact Location
       </h2>
       
-      <div className="relative h-64 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
-        <FunctionalMap
-          showSafeZones={false}
-          showChaosZones={false}
-          showPoliceBlocks={false}
-          chaosReports={[]}
-          panicAlerts={[]}
-          onReportLocation={onLocationSelect}
-          reportMode={true}
-        />
+      <div className="relative h-80 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
+        <div className="absolute inset-0 z-10">
+          <FunctionalMap
+            showSafeZones={false}
+            showChaosZones={false}
+            showPoliceBlocks={false}
+            chaosReports={[]}
+            panicAlerts={[]}
+            onReportLocation={onLocationSelect}
+            reportMode={true}
+          />
+        </div>
         
         {/* Location marker overlay - shows selected location */}
         {selectedLocation && (
@@ -47,11 +49,11 @@ const ReportChaosMap: React.FC<ReportChaosMapProps> = ({ onLocationSelect, selec
           {selectedLocation ? (
             <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm shadow flex items-center gap-1">
               <MapPin className="w-3 h-3" />
-              Location Pinned
+              Exact Location Pinned
             </div>
           ) : (
             <span className="bg-white px-3 py-1 rounded-full text-sm shadow">
-              Tap anywhere to pin exact location
+              Click map to pin exact location
             </span>
           )}
         </div>

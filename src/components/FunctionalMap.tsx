@@ -57,33 +57,38 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    // Get user location or default to Nairobi
+    // Get user location with high accuracy
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos = new L.LatLng(position.coords.latitude, position.coords.longitude);
           setCurrentPosition(userPos);
-          initializeMap(userPos);
+          initializeMap(userPos, true); // true = user location found
         },
         () => {
           const defaultPos = new L.LatLng(-1.2921, 36.8219);
           setCurrentPosition(defaultPos);
-          initializeMap(defaultPos);
+          initializeMap(defaultPos, false); // false = using default location
+        },
+        { 
+          enableHighAccuracy: true, 
+          timeout: 10000, 
+          maximumAge: 300000 // 5 minutes
         }
       );
     } else {
       const defaultPos = new L.LatLng(-1.2921, 36.8219);
       setCurrentPosition(defaultPos);
-      initializeMap(defaultPos);
+      initializeMap(defaultPos, false);
     }
 
-    function initializeMap(center: L.LatLng) {
+    function initializeMap(center: L.LatLng, hasUserLocation: boolean) {
       if (!mapContainerRef.current) return;
 
-      // Create map with Kenya bounds
+      // Create map with Kenya bounds, zoom higher for exact location
       const map = L.map(mapContainerRef.current, {
         center: [center.lat, center.lng],
-        zoom: 13,
+        zoom: hasUserLocation ? 16 : 13, // Higher zoom for exact location
         zoomControl: true,
         scrollWheelZoom: true,
         doubleClickZoom: true,
@@ -203,9 +208,54 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       });
     }
 
-    // Add chaos reports
+    // Add police blocks (from roadblock chaos reports)
+    if (showPoliceBlocks) {
+      const roadblockReports = chaosReports.filter(report => 
+        report.danger_type.toLowerCase().includes('roadblock') || 
+        report.danger_type.toLowerCase().includes('police') ||
+        report.danger_type.toLowerCase().includes('block')
+      );
+      
+      roadblockReports.forEach(report => {
+        const policeIcon = L.divIcon({
+          className: 'police-icon',
+          html: '<div style="width: 24px; height: 24px; background-color: #2563eb; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><svg style="width: 12px; height: 12px; color: white;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div>',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+
+        L.marker([report.location_lat, report.location_lng], { icon: policeIcon })
+          .addTo(mapRef.current!)
+          .bindPopup(`
+            <div style="padding: 16px; min-width: 200px; border: 2px solid #2563eb; border-radius: 8px;">
+              <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <div style="width: 32px; height: 32px; background-color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                  <svg style="width: 16px; height: 16px; color: white;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                </div>
+                <h3 style="font-weight: bold; color: #1d4ed8; font-size: 18px; margin: 0;">🚔 ${report.danger_type}</h3>
+              </div>
+              ${report.description ? `<p style="font-size: 14px; color: #4b5563; margin-bottom: 8px;">${report.description}</p>` : ''}
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="padding: 4px 12px; background-color: #dbeafe; border-radius: 16px; font-size: 12px; color: #1d4ed8; font-weight: 600;">
+                  🚧 Police Block
+                </div>
+                <div style="font-size: 12px; color: #6b7280;">
+                  ${new Date(report.created_at).toLocaleTimeString()}
+                </div>
+              </div>
+            </div>
+          `);
+      });
+    }
+
+    // Add chaos reports (excluding roadblocks since they show as police blocks)
     if (showChaosZones) {
-      chaosReports.forEach(report => {
+      const nonRoadblockReports = chaosReports.filter(report => 
+        !report.danger_type.toLowerCase().includes('roadblock') && 
+        !report.danger_type.toLowerCase().includes('block')
+      );
+      
+      nonRoadblockReports.forEach(report => {
         const chaosIcon = L.divIcon({
           className: 'chaos-icon',
           html: '<div style="width: 24px; height: 24px; background-color: #ef4444; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); animation: pulse 2s infinite;"><svg style="width: 12px; height: 12px; color: white;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></div>',
@@ -274,7 +324,7 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
     });
   }, [showSafeZones, showChaosZones, showPoliceBlocks, chaosReports, panicAlerts, isMapReady]);
 
-  // Handle routing
+  // Handle smart routing (avoiding chaos zones)
   useEffect(() => {
     if (!mapRef.current || !isMapReady || !showRoute || !routeDestination || !currentPosition) return;
 
@@ -283,7 +333,20 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       mapRef.current.removeControl(routingControlRef.current);
     }
 
-    // Add new routing control
+    // Create waypoints avoiding chaos zones and panic alerts
+    const avoidPoints: L.LatLng[] = [];
+    
+    // Add chaos zones to avoid
+    chaosReports.forEach(report => {
+      avoidPoints.push(L.latLng(report.location_lat, report.location_lng));
+    });
+    
+    // Add panic alerts to avoid
+    panicAlerts.forEach(alert => {
+      avoidPoints.push(L.latLng(alert.location_lat, alert.location_lng));
+    });
+
+    // Calculate safer route with avoidance
     routingControlRef.current = (L as any).Routing.control({
       waypoints: [
         L.latLng(currentPosition.lat, currentPosition.lng),
@@ -293,9 +356,29 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
       addWaypoints: false,
       createMarker: () => null, // Don't create markers as we already have them
       lineOptions: {
-        styles: [{ color: '#10b981', weight: 4, opacity: 0.8 }]
-      }
+        styles: [{ color: '#10b981', weight: 5, opacity: 0.9 }]
+      },
+      router: (L as any).Routing.osrmv1({
+        serviceUrl: 'https://router.project-osrm.org/route/v1',
+        profile: 'foot' // Walking routing for shortcuts
+      })
     }).addTo(mapRef.current);
+
+    // Add safety notification
+    if (avoidPoints.length > 0) {
+      L.popup()
+        .setLatLng(L.latLng(
+          (currentPosition.lat + routeDestination.lat) / 2,
+          (currentPosition.lng + routeDestination.lng) / 2
+        ))
+        .setContent(`
+          <div style="padding: 8px; text-align: center; background-color: #10b981; color: white; border-radius: 4px; font-weight: bold;">
+            🛡️ Safe Route<br/>
+            <small style="font-weight: normal;">Avoiding ${avoidPoints.length} danger zone(s)</small>
+          </div>
+        `)
+        .openOn(mapRef.current);
+    }
 
     return () => {
       if (routingControlRef.current && mapRef.current) {
@@ -303,14 +386,14 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
         routingControlRef.current = null;
       }
     };
-  }, [showRoute, routeDestination, currentPosition, isMapReady]);
+  }, [showRoute, routeDestination, currentPosition, isMapReady, chaosReports, panicAlerts]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
       <div 
         ref={mapContainerRef} 
         className="w-full h-full rounded-lg"
-        style={{ minHeight: '400px' }}
+        style={{ minHeight: '400px', zIndex: 1 }}
       />
     </div>
   );

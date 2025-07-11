@@ -250,18 +250,22 @@ const LiveMap = () => {
 
       {/* Map Container */}
       <div className="relative h-[calc(100vh-180px)]">
-        <FunctionalMap
-          showSafeZones={showSafeZones}
-          showChaosZones={showChaosZones}
-          showPoliceBlocks={showPoliceBlocks}
-          chaosReports={chaosReports}
-          panicAlerts={panicAlerts}
-          showRoute={showRoute}
-          routeDestination={routeDestination}
-        />
+        <div className="absolute inset-0 z-10">
+          <FunctionalMap
+            showSafeZones={showSafeZones}
+            showChaosZones={showChaosZones}
+            showPoliceBlocks={showPoliceBlocks}
+            chaosReports={chaosReports}
+            panicAlerts={panicAlerts}
+            showRoute={showRoute}
+            routeDestination={routeDestination}
+          />
+        </div>
         
         {/* Floating Action Buttons */}
-        <FloatingActionButtons onNearestSafeZone={handleNearestSafeArea} />
+        <div className="absolute bottom-6 right-6 z-20">
+          <FloatingActionButtons onNearestSafeZone={handleNearestSafeArea} />
+        </div>
 
         {/* Mobile Legend - Sheet */}
         <div className="absolute top-6 right-6 z-20 md:hidden">
