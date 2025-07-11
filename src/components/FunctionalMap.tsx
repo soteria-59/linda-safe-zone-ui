@@ -306,11 +306,11 @@ const FunctionalMap: React.FC<FunctionalMapProps> = ({
   }, [showRoute, routeDestination, currentPosition, isMapReady]);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full">
       <div 
         ref={mapContainerRef} 
-        className="w-full h-full rounded-lg overflow-hidden"
-        style={{ minHeight: '400px', position: 'relative', zIndex: 1 }}
+        className="w-full h-full rounded-lg"
+        style={{ minHeight: '400px' }}
       />
     </div>
   );
