@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Layers, AlertTriangle, Shield, Navigation, MapPin, Search, Info } from 'lucide-react';
+import { Layers, AlertTriangle, Shield, Navigation, MapPin, Search, Info, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -284,8 +284,8 @@ const LiveMap = () => {
               </SheetHeader>
               <div className="space-y-4 mt-6">
                 <div className="flex items-center">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full mr-3"></div>
-                  <span>Your Current Location</span>
+                  <div className="w-6 h-6 bg-red-500 rounded-full mr-3"></div>
+                  <span>Your Current Location (Real-time)</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-6 h-6 bg-green-500 rounded-full mr-3 flex items-center justify-center">
@@ -316,38 +316,49 @@ const LiveMap = () => {
           </Sheet>
         </div>
 
-        {/* Desktop Legend */}
-        <div className="absolute top-6 right-6 bg-white rounded-lg shadow-lg p-4 z-20 hidden md:block">
-          <h3 className="font-semibold text-gray-900 mb-3">Legend</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
-              <span>Your Location</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-green-500 rounded-full mr-2 flex items-center justify-center">
-                <Shield className="w-2 h-2 text-white" />
+        {/* Desktop Legend - Expandable */}
+        <div className="absolute top-6 right-6 z-20 hidden md:block">
+          <div className="bg-white rounded-lg shadow-lg">
+            <details className="group">
+              <summary className="cursor-pointer p-3 list-none">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-900">Legend</h3>
+                  <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                </div>
+              </summary>
+              <div className="px-3 pb-3 border-t">
+                <div className="space-y-2 text-sm pt-3">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                    <span>Your Location (Real-time)</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-green-500 rounded-full mr-2 flex items-center justify-center">
+                      <Shield className="w-2 h-2 text-white" />
+                    </div>
+                    <span>Safe Zones</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-red-500 rounded-full mr-2 flex items-center justify-center">
+                      <AlertTriangle className="w-2 h-2 text-white" />
+                    </div>
+                    <span>Danger Zones</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-blue-600 rounded-full mr-2 flex items-center justify-center">
+                      <Shield className="w-2 h-2 text-white" />
+                    </div>
+                    <span>Police Blocks</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-red-800 rounded-full mr-2 flex items-center justify-center">
+                      <AlertTriangle className="w-2 h-2 text-white" />
+                    </div>
+                    <span>Panic Alerts</span>
+                  </div>
+                </div>
               </div>
-              <span>Safe Zones</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-red-500 rounded-full mr-2 flex items-center justify-center">
-                <AlertTriangle className="w-2 h-2 text-white" />
-              </div>
-              <span>Danger Zones</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-blue-600 rounded-full mr-2 flex items-center justify-center">
-                <Shield className="w-2 h-2 text-white" />
-              </div>
-              <span>Police Blocks</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-red-800 rounded-full mr-2 flex items-center justify-center">
-                <AlertTriangle className="w-2 h-2 text-white" />
-              </div>
-              <span>Panic Alerts</span>
-            </div>
+            </details>
           </div>
         </div>
       </div>

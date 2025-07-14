@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Navigation, AlertTriangle, Car, PersonStanding, Bus } from 'lucide-react';
+import { Navigation, AlertTriangle, Car, User, Bus, ChevronDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,7 +17,23 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showTransportOptions, setShowTransportOptions] = useState(false);
-  const [selectedTransport, setSelectedTransport] = useState('walk');
+  const [showCabOptions, setShowCabOptions] = useState(false);
+  const [showRouteNotes, setShowRouteNotes] = useState(false);
+
+  const transportModes = [
+    { id: 'walk', name: 'Walk', icon: User, description: 'Pedestrian shortcuts avoiding main roads' },
+    { id: 'cab', name: 'Cab', icon: Car, description: 'Choose your preferred cab service' },
+    { id: 'bus', name: 'Bus', icon: Bus, description: 'Public transport routes' },
+    { id: 'private', name: 'Private', icon: Car, description: 'Private vehicle route' },
+  ];
+
+  const cabServices = [
+    { id: 'uber', name: 'Uber', color: 'bg-black' },
+    { id: 'bolt', name: 'Bolt', color: 'bg-green-600' },
+    { id: 'little', name: 'Little', color: 'bg-orange-500' },
+    { id: 'faras', name: 'Faras', color: 'bg-blue-600' },
+    { id: 'weego', name: 'Weego', color: 'bg-purple-600' },
+  ];
 
   const handleNearestSafeZone = () => {
     if (onNearestSafeZone) {
@@ -32,23 +48,40 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
     }
   };
 
-  const handleTransportSelect = (transport: string) => {
-    setSelectedTransport(transport);
-    if (onNearestSafeZone) {
-      onNearestSafeZone(transport);
+  const handleTransportSelect = (mode: string) => {
+    if (mode === 'cab') {
+      setShowCabOptions(true);
+      setShowTransportOptions(false);
+    } else {
+      if (onNearestSafeZone) {
+        onNearestSafeZone(mode);
+      }
+      setShowTransportOptions(false);
+      setShowRouteNotes(true);
+      
+      const transportNames: { [key: string]: string } = {
+        walk: 'Walking (shortcuts)',
+        bus: 'Public transport',
+        private: 'Private vehicle'
+      };
+      
+      toast({
+        title: "Safe Zone Route",
+        description: `Finding ${transportNames[mode] || mode} route`,
+      });
     }
-    setShowTransportOptions(false);
-    
-    const transportNames: { [key: string]: string } = {
-      walk: 'Walking',
-      car: 'Driving',
-      bus: 'Public Transport',
-      private: 'Private Transport'
-    };
+  };
+
+  const handleCabSelect = (cabService: string) => {
+    if (onNearestSafeZone) {
+      onNearestSafeZone('cab');
+    }
+    setShowCabOptions(false);
+    setShowRouteNotes(true);
     
     toast({
       title: "Safe Zone Route",
-      description: `Finding route by ${transportNames[transport] || transport}`,
+      description: `Route calculated for ${cabService}`,
     });
   };
 
@@ -57,79 +90,131 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
   };
 
   return (
-    <>
-      <div className="fixed bottom-20 left-4 right-4 z-40 pointer-events-none">
-        <div className="flex justify-between items-end max-w-sm mx-auto pointer-events-auto">
-          {!showOnlyReportChaos && (
-            <Button 
-              onClick={handleNearestSafeZone}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-2xl rounded-full px-6 py-3 flex items-center gap-2 transition-all duration-200 hover:scale-105"
-            >
-              <Navigation className="w-4 h-4" />
-              <span className="font-medium">Safe Zone Route</span>
-            </Button>
-          )}
-          
-          <Button 
-            onClick={handleReportChaos}
-            className="bg-red-600 hover:bg-red-700 text-white shadow-2xl rounded-full px-6 py-3 flex items-center gap-2 transition-all duration-200 hover:scale-105"
-          >
-            <AlertTriangle className="w-4 h-4" />
-            <span className="font-medium">Report Chaos</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Transport Mode Selection Modal */}
-      {showTransportOptions && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 className="text-lg font-semibold mb-4 text-center">Choose Transport Mode</h3>
-            <div className="grid grid-cols-2 gap-3">
+    <div className="relative flex flex-col gap-3 items-end">
+      {/* Route Direction Notes - Expandable */}
+      {showRouteNotes && (
+        <Card className="absolute bottom-24 right-0 w-80 shadow-2xl bg-white border-green-600 border-2 animate-slide-in-right">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start mb-3">
+              <h3 className="font-semibold text-green-700">Safe Route Directions</h3>
               <Button 
-                onClick={() => handleTransportSelect('walk')}
-                variant="outline"
-                className="flex flex-col items-center gap-2 p-4 h-auto"
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowRouteNotes(false)}
+                className="h-6 w-6 p-0"
               >
-                <PersonStanding className="w-6 h-6" />
-                <span>Walk</span>
-              </Button>
-              <Button 
-                onClick={() => handleTransportSelect('car')}
-                variant="outline"
-                className="flex flex-col items-center gap-2 p-4 h-auto"
-              >
-                <Car className="w-6 h-6" />
-                <span>Car</span>
-              </Button>
-              <Button 
-                onClick={() => handleTransportSelect('bus')}
-                variant="outline"
-                className="flex flex-col items-center gap-2 p-4 h-auto"
-              >
-                <Bus className="w-6 h-6" />
-                <span>Public Transport</span>
-              </Button>
-              <Button 
-                onClick={() => handleTransportSelect('private')}
-                variant="outline"
-                className="flex flex-col items-center gap-2 p-4 h-auto"
-              >
-                <Navigation className="w-6 h-6" />
-                <span>Private</span>
+                <X className="w-4 h-4" />
               </Button>
             </div>
-            <Button 
-              onClick={() => setShowTransportOptions(false)}
-              variant="ghost"
-              className="w-full mt-4"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
+                <span>Avoiding 3 danger zones</span>
+              </div>
+              <div className="flex items-center text-blue-600">
+                <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
+                <span>Using alternative side roads</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
+                <span>ETA: 12 minutes to safe zone</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </>
+
+      {/* Cab Options Popup */}
+      {showCabOptions && (
+        <Card className="absolute bottom-24 right-0 w-64 shadow-2xl bg-white animate-scale-in">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-gray-900">Choose Your Cab</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowCabOptions(false)}
+                className="h-6 w-6 p-0"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {cabServices.map((service) => (
+                <Button
+                  key={service.id}
+                  variant="outline"
+                  className="w-full justify-start hover:scale-105 transition-transform"
+                  onClick={() => handleCabSelect(service.name)}
+                >
+                  <div className={`w-4 h-4 ${service.color} rounded mr-3`}></div>
+                  {service.name}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Transport Mode Options */}
+      {showTransportOptions && (
+        <Card className="absolute bottom-24 right-0 w-72 shadow-2xl bg-white animate-scale-in">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-gray-900">Choose Transport Mode</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowTransportOptions(false)}
+                className="h-6 w-6 p-0"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {transportModes.map((mode) => {
+                const Icon = mode.icon;
+                return (
+                  <Button
+                    key={mode.id}
+                    variant="outline"
+                    className="w-full justify-start text-left hover:scale-105 transition-transform"
+                    onClick={() => handleTransportSelect(mode.id)}
+                  >
+                    <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
+                    <div>
+                      <div className="font-medium">{mode.name}</div>
+                      <div className="text-xs text-gray-500">{mode.description}</div>
+                    </div>
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!showOnlyReportChaos && (
+        <Button 
+          onClick={handleNearestSafeZone}
+          className="bg-green-600 hover:bg-green-700 text-white shadow-2xl rounded-full px-6 py-3 text-base font-semibold transform transition-all duration-200 hover:scale-105 relative"
+          size="lg"
+        >
+          <Navigation className="w-5 h-5 mr-2" />
+          Safe Zone Route
+          <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showTransportOptions ? 'rotate-180' : ''}`} />
+        </Button>
+      )}
+      
+      <Button 
+        onClick={handleReportChaos}
+        className="bg-red-600 hover:bg-red-700 text-white shadow-2xl rounded-full px-6 py-3 text-base font-semibold transform transition-all duration-200 hover:scale-105"
+        size="lg"
+      >
+        <AlertTriangle className="w-5 h-5 mr-2" />
+        Report Chaos
+      </Button>
+    </div>
   );
 };
 
