@@ -1,22 +1,19 @@
-# Welcome to your Lovable project
+# Welcome  Linda project
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/09d578f1-3c34-41d7-971b-4acba61de07c
+**URL**: 
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/09d578f1-3c34-41d7-971b-4acba61de07c) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+Simply visit the (https:soteria.dev/projects/09d578f1-3c34-41d7-971b-4acba61de07c) 
 
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,12 +59,11 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/09d578f1-3c34-41d7-971b-4acba61de07c) and click on Share -> Publish.
+Simply open  and -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
+
 
 Yes, you can!
 
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
